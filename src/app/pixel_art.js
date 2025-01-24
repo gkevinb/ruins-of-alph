@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 
-const PixelArtCanvas = () => {
+const PixelArtCanvas = ({ useMask, tilePixels }) => {
   const mask = [
     "111111111111111111111111",
     "111000011110000000000111",
@@ -18,7 +18,7 @@ const PixelArtCanvas = () => {
     "110000000000000000000001",
     "110000000000000000000001",
     "100000000000000000000001",
-    "100000000000000000000001",
+    "100000000000000000000011",
     "100000000000000000000011",
     "100000000000000000000011",
     "100000000000000000000011",
@@ -45,21 +45,6 @@ const PixelArtCanvas = () => {
   //   "221222122212",
   //   "111211121112"
   // ];
-
-  const pixelArtCompressed = [
-    "111111111111",
-    "111111111111",
-    "111112221111",
-    "111222122222",
-    "111211111222",
-    "111212211222",
-    "112212111112",
-    "112111111111",
-    "112111111111",
-    "112212211111",
-    "111222221211",
-    "111222222222"
-  ];
 
   // Function to expand a compressed pixel art
   const expandPixelArt = (compressedArt, scale) => {
@@ -103,31 +88,31 @@ const PixelArtCanvas = () => {
   useEffect(() => {
     console.log("Starting pixel art expansion...");
     const scale = 2;
-    const pixelArtExpanded = expandPixelArt(pixelArtCompressed, scale);
+    const pixelArtExpanded = expandPixelArt(tilePixels, scale);
     console.log("Pixel art expanded successfully.");
 
     // Output the expanded pixel art
     console.log("Expanded Pixel Art:");
     pixelArtExpanded.forEach((row, rowIndex) => console.log(`Row ${rowIndex + 1}: ${row}`));
 
+    const finalPixelArt = useMask ? applyMask(pixelArtExpanded, mask) : pixelArtExpanded;
 
-    const maskedPixelArt = applyMask(pixelArtExpanded, mask);
+    // const maskedPixelArt = applyMask(pixelArtExpanded, mask);
     console.log("Masked Pixel Art:");
-    maskedPixelArt.forEach((row, rowIndex) => console.log(`Row ${rowIndex + 1}: ${row}`));
-
+    finalPixelArt.forEach((row, rowIndex) => console.log(`Row ${rowIndex + 1}: ${row}`));
 
     // Canvas setup
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const pixelSize = 10; // Size of each pixel
-    canvas.width = maskedPixelArt[0].length * pixelSize;
-    canvas.height = maskedPixelArt.length * pixelSize;
+    canvas.width = finalPixelArt[0].length * pixelSize;
+    canvas.height = finalPixelArt.length * pixelSize;
     document.body.appendChild(canvas);
 
     console.log("Canvas initialized with dimensions:", canvas.width, "x", canvas.height);
 
     // Draw the expanded pixel art
-    maskedPixelArt.forEach((row, rowIndex) => {
+    finalPixelArt.forEach((row, rowIndex) => {
       row.split("").forEach((pixel, colIndex) => {
         console.log(`Drawing pixel at row ${rowIndex + 1}, col ${colIndex + 1}: ${pixel}`);
         if(pixel === "1"){
