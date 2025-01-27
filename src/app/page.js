@@ -63,6 +63,67 @@ export default function Home() {
     "111111111111"
   ];
 
+  const pixelTileA2 = [
+    "111111111111",
+    "111111111111",
+    "111111111122",
+    "222222222221",
+    "222222221111",
+    "221111111111",
+    "221111111112",
+    "211122221122",
+    "112221211122",
+    "112221211122",
+    "111222211122",
+    "111111111211"
+  ];
+
+  const pixelTileB2 = [
+    "221112211211",
+    "122222111211",
+    "111111111211",
+    "111111111211",
+    "111221122211",
+    "222222221111",
+    "222222211111",
+    "222222211111",
+    "222222111112",
+    "222221111112",
+    "222221111111",
+    "222211111111"
+  ];
+
+  const pixelTileC2 = [
+    "222211111111",
+    "222211111111",
+    "222211111211",
+    "222221122211",
+    "222221221111",
+    "222222211111",
+    "222222111111",
+    "222222111112",
+    "222222111112",
+    "222222211111",
+    "222222222111",
+    "222222222211"
+  ];
+
+  const pixelTileD2 = [
+    "222222211111",
+    "222221111111",
+    "222211111111",
+    "222211222222",
+    "122222222222",
+    "111122222222",
+    "111111111111",
+    "111111111111",
+    "221111111111",
+    "122222211111",
+    "111111222222",
+    "111111111111"
+  ];
+
+
   return (
     <div>
       <h1>Pixel Art</h1>
@@ -70,6 +131,10 @@ export default function Home() {
       <PixelArtCanvas tilePixels={pixelTileB1} useMask={true} />
       <PixelArtCanvas tilePixels={pixelTileC1} useMask={true} />
       <PixelArtCanvas tilePixels={pixelTileD1} useMask={true} />
+      <PixelArtCanvas tilePixels={pixelTileA2} useMask={true} />
+      <PixelArtCanvas tilePixels={pixelTileB2} useMask={true} />
+      <PixelArtCanvas tilePixels={pixelTileC2} useMask={true} />
+      <PixelArtCanvas tilePixels={pixelTileD2} useMask={true} />
       {/* <PixelArtCanvas useMask={false} /> */}
       <BackgroundPixels />
     </div>
