@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 
-const PixelArtCanvas = ({ useMask, tilePixels }) => {
+const PixelArtCanvas = ({ useMask, tilePixels, componentId }) => {
   const mask = [
     "111111111111111111111111",
     "111000011110000000000111",
@@ -103,18 +103,30 @@ const PixelArtCanvas = ({ useMask, tilePixels }) => {
 
     // Canvas setup
     const canvas = document.createElement("canvas");
+    // canvas.classList.add("grid-item");
+    const container = document.getElementById(componentId);
+    if (container) {
+      // container.innerHTML = ""; // Clear any existing content
+      container.appendChild(canvas);
+    }
+
     const ctx = canvas.getContext("2d");
     const pixelSize = 10; // Size of each pixel
     canvas.width = finalPixelArt[0].length * pixelSize;
     canvas.height = finalPixelArt.length * pixelSize;
-    document.body.appendChild(canvas);
+
+    // const container = document.getElementById("grid-container");
+    // if (container) {
+    //   container.appendChild(canvas);
+    // }
+    // document.body.appendChild(canvas);
 
     console.log("Canvas initialized with dimensions:", canvas.width, "x", canvas.height);
 
     // Draw the expanded pixel art
     finalPixelArt.forEach((row, rowIndex) => {
       row.split("").forEach((pixel, colIndex) => {
-        console.log(`Drawing pixel at row ${rowIndex + 1}, col ${colIndex + 1}: ${pixel}`);
+        // console.log(`Drawing pixel at row ${rowIndex + 1}, col ${colIndex + 1}: ${pixel}`);
         if(pixel === "1"){
           ctx.fillStyle = "#c19f57";
         }
@@ -135,9 +147,9 @@ const PixelArtCanvas = ({ useMask, tilePixels }) => {
     });
 
     console.log("Pixel art drawn successfully.");
-  }, []);
+  }, [useMask, tilePixels, componentId]);
 
-  return null;
+  return <div id={componentId}></div>;
 };
 
 export default PixelArtCanvas;

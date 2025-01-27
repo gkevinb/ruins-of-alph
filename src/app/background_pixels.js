@@ -51,7 +51,7 @@ const BackgroundPixels = () => {
     // Draw the expanded pixel art
     tiledPixelArt.forEach((row, rowIndex) => {
       row.split("").forEach((pixel, colIndex) => {
-        console.log(`Drawing pixel at row ${rowIndex + 1}, col ${colIndex + 1}: ${pixel}`);
+        // console.log(`Drawing pixel at row ${rowIndex + 1}, col ${colIndex + 1}: ${pixel}`);
         if(pixel === "0"){
           ctx.fillStyle = "#f9f9f9";
         }
