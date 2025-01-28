@@ -153,6 +153,66 @@ export default function Home() {
     "112111222111"
   ];
 
+  const pixelTileB3 = [
+    "222211211111",
+    "222211211111",
+    "222211211111",
+    "222211211111",
+    "122211222211",
+    "122211211222",
+    "122112211111",
+    "221122111111",
+    "211221111122",
+    "112211111221",
+    "122111112211",
+    "121111122111"
+  ];
+
+  const pixelTileB4 = [
+    "112111222111",
+    "112111222111",
+    "112211222111",
+    "111211222111",
+    "111211222111",
+    "221211222111",
+    "122211222111",
+    "221112222111",
+    "111112222111",
+    "111112222111",
+    "111222222111",
+    "122222222111"
+  ];
+
+  const pixelTileC3 = [
+    "122111122112",
+    "112221222222",
+    "111122211122",
+    "111111111111",
+    "111111111111",
+    "111112111111",
+    "111122111111",
+    "211121111111",
+    "222221111111",
+    "222111111111",
+    "122222222211",
+    "122222222222"
+  ];
+
+  const pixelTileC4 = [
+    "222222222111",
+    "222222222111",
+    "222222222111",
+    "222222222111",
+    "111222222111",
+    "111112222111",
+    "111111222111",
+    "111111122111",
+    "111111122111",
+    "111111112111",
+    "111111112111",
+    "111111112111"
+  ];
+
 
   return (
     <div>
@@ -173,9 +233,13 @@ export default function Home() {
         <PixelArtCanvas componentId={"A4"} tilePixels={pixelTileA4} useMask={true} />
         <PixelArtCanvas componentId={"B1"} tilePixels={pixelTileB1} useMask={true} />
         <PixelArtCanvas componentId={"B2"} tilePixels={pixelTileB2} useMask={true} />
+        <PixelArtCanvas componentId={"B3"} tilePixels={pixelTileB3} useMask={true} />
+        <PixelArtCanvas componentId={"B4"} tilePixels={pixelTileB4} useMask={true} />
         <PixelArtCanvas componentId={"C1"} tilePixels={pixelTileC1} useMask={true} />
-        <PixelArtCanvas componentId={"D1"} tilePixels={pixelTileD1} useMask={true} />
         <PixelArtCanvas componentId={"C2"} tilePixels={pixelTileC2} useMask={true} />
+        <PixelArtCanvas componentId={"C3"} tilePixels={pixelTileC3} useMask={true} />
+        <PixelArtCanvas componentId={"C4"} tilePixels={pixelTileC4} useMask={true} />
+        <PixelArtCanvas componentId={"D1"} tilePixels={pixelTileD1} useMask={true} />
         <PixelArtCanvas componentId={"D2"} tilePixels={pixelTileD2} useMask={true} />
       </div>
       {/* <PixelArtCanvas useMask={false} /> */}
