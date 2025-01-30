@@ -213,6 +213,36 @@ export default function Home() {
     "111111112111"
   ];
 
+  const pixelTileD3 = [
+    "111222222222",
+    "111122222222",
+    "221122222222",
+    "222222222222",
+    "222222222111",
+    "222211111111",
+    "111111111111",
+    "111111111111",
+    "111111111111",
+    "111111112222",
+    "222222222111",
+    "111111111111"
+  ];
+
+  const pixelTileD4 = [
+    "211111112111",
+    "211111112111",
+    "211111112111",
+    "111111112111",
+    "111111122111",
+    "111111122111",
+    "111111222111",
+    "111122222111",
+    "122222222111",
+    "221111111111",
+    "111111111111",
+    "111111111111"
+  ];
+
 
   return (
     <div>
@@ -241,6 +271,9 @@ export default function Home() {
         <PixelArtCanvas componentId={"C4"} tilePixels={pixelTileC4} useMask={true} />
         <PixelArtCanvas componentId={"D1"} tilePixels={pixelTileD1} useMask={true} />
         <PixelArtCanvas componentId={"D2"} tilePixels={pixelTileD2} useMask={true} />
+        <PixelArtCanvas componentId={"D3"} tilePixels={pixelTileD3} useMask={true} />
+        <PixelArtCanvas componentId={"D4"} tilePixels={pixelTileD4} useMask={true} />
+
       </div>
       {/* <PixelArtCanvas useMask={false} /> */}
       <BackgroundPixels />
