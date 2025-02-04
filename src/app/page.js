@@ -1,6 +1,7 @@
 import Image from "next/image";
 import PixelArtCanvas from "./pixel_art";
 import BackgroundPixels from "./background_pixels";
+import Block from "./Block";
 
 export default function Home() {
   const pixelTileA1 = [
@@ -277,6 +278,8 @@ export default function Home() {
       </div>
       {/* <PixelArtCanvas useMask={false} /> */}
       <BackgroundPixels />
+
+      <Block />
     </div>
   );
 }
