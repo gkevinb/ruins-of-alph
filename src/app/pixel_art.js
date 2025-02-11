@@ -111,7 +111,7 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId }) => {
     }
 
     const ctx = canvas.getContext("2d");
-    const pixelSize = 10; // Size of each pixel
+    const pixelSize = 5; // Size of each pixel
     canvas.width = finalPixelArt[0].length * pixelSize;
     canvas.height = finalPixelArt.length * pixelSize;
 

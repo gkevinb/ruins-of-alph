@@ -32,7 +32,7 @@ const BackgroundPixels = () => {
 
 
   useEffect(() => {
-    const targetSize = 192; // Target size 24x24
+    const targetSize = 24; // Target size 24x24
     const tiledPixelArt = tilePixelArt(pixelArtCompressed, targetSize);
 
     console.log("Tiled Pixel Art:");
@@ -41,7 +41,7 @@ const BackgroundPixels = () => {
     // Canvas setup
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    const pixelSize = 10; // Size of each pixel
+    const pixelSize = 5; // Size of each pixel
     canvas.width = tiledPixelArt[0].length * pixelSize;
     canvas.height = tiledPixelArt.length * pixelSize;
     document.body.appendChild(canvas);

@@ -279,7 +279,7 @@ export default function Home() {
       {/* <PixelArtCanvas useMask={false} /> */}
       <BackgroundPixels />
 
-      <Block />
+      {/* <Block /> */}
     </div>
   );
 }

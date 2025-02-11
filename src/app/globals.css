@@ -35,8 +35,8 @@ canvas {
     grid-template-columns: repeat(4, 1fr); /* 4 columns of equal width */
     grid-template-rows: repeat(4, 1fr);  /* 4 rows of equal height */
     /* gap: 10px; Space between grid items */
-    width: 960px;
-    height: 960px;
+    width: 480px;
+    height: 480px;
     background-color: #fff;
     /* padding: 10px; */
     /* border-radius: 8px; */
