@@ -1,14 +1,12 @@
-.gridContainer {
+.root {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(6, 1fr);
   width: 720px;
   height: 720px;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.gridItem {
+.cell {
   position: relative;
   width: 100%;
   height: 100%;
@@ -18,6 +16,6 @@
   background-color: transparent;
 }
 
-.boardItem {
+.textBoardCell {
   grid-column: span 4;
 }
