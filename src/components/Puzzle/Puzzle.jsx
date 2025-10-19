@@ -215,7 +215,7 @@ const Puzzle = ({ puzzle }) => {
                         <PixelArtCanvas
                           componentId={`${puzzleId}-tile-${occupantId}`}
                           tilePixels={tilePixelsMatrix}
-                          useMask={true}
+                          useMask={!isSolved}
                         />
                       </TileDraggable>
                     ) : null}
@@ -237,7 +237,7 @@ const Puzzle = ({ puzzle }) => {
           borderRadius: '8px',
           border: '2px solid #000',
           backgroundColor: '#000',
-          color: '#000',
+          color: '#fff',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           cursor: isSolved ? 'not-allowed' : 'pointer'
