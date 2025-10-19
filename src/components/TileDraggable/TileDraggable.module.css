@@ -11,4 +11,5 @@
 
 .isDragging {
   cursor: grabbing;
+  z-index: 10;
 }
