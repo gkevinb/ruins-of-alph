@@ -7,6 +7,7 @@ import BackgroundPixels from './background_pixels';
 import TileDroppable from './TileDroppable';
 import TileDraggable from './TileDraggable';
 import TextBoard from './TextBoard';
+import styles from './page.module.css';
 
 const getCellId = (rowIndex, colIndex) => `cell-${rowIndex}-${colIndex}`;
 
@@ -345,13 +346,16 @@ export default function Home() {
     <div>
       <h1>Pixel Art</h1>
       <DndContext onDragEnd={handleDragEnd}>
-        <div className="grid-container">
+        <div className={styles.gridContainer}>
           {gridLayout.map((row, rowIndex) =>
             row.map((_, colIndex) => {
               if (rowIndex === gridLayout.length - 1) {
                 if (colIndex === 1) {
                   return (
-                    <div className="grid-item board-item" key="text-board">
+                    <div
+                      className={`${styles.gridItem} ${styles.boardItem}`}
+                      key="text-board"
+                    >
                       <TextBoard />
                     </div>
                   );
@@ -367,7 +371,7 @@ export default function Home() {
               const tilePixels = occupantId ? pixelTileMap[occupantId] : null;
 
               return (
-                <div className="grid-item" key={cellId}>
+                <div className={styles.gridItem} key={cellId}>
                   <TileDroppable id={cellId}>
                     <BackgroundPixels componentId={`bg-${cellId}`} />
                     {tilePixels ? (

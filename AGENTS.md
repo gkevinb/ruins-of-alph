@@ -10,37 +10,37 @@
 - Loads Geist fonts, applies the global stylesheet, and exposes the `<body>` shell for grid content.
 
 ## Grid Conductor
-- File: `src/app/page.js`
+- Files: `src/app/page.js`, `src/app/page.module.css`
 - Marks the module as client-side, seeds tile placement state for all 36 cells, and renders a `DndContext` around the grid.
 - Computes the occupant map (`placements`) so each droppable knows which glyph to show and performs swap logic when a tile drops onto an occupied cell.
-- Renders background canvases everywhere, overlays draggable glyphs for occupied cells, and reserves the bottom-row centre (`TextBoard`) as a non-droppable display strip.
+- Styles the 6×6 layout via the page CSS module, reserving the bottom-row centre (`TextBoard`) as a non-droppable display strip.
 
 ## Pixel Art Agent
-- File: `src/app/pixel_art.js`
+- Files: `src/app/pixel_art.js`, `src/app/pixel_art.module.css`
 - Expands compact 12×12 strings to 24×24 by duplicating rows/columns and optionally masks value `1` to `3` for the black void effect.
 - Replaces the contents of the target container with a canvas scaled by `pixelSize` (default 5px) and paints using the 1→#c19f57, 2→#8f6858, 3→#000000 palette.
-- Returns a `.canvas-foreground` wrapper so draggable logic can layer it above the background drop target.
+- Applies a component-level CSS module to ensure the foreground canvas layers correctly above droppable targets.
 
 ## Background Fabric Agent
-- File: `src/app/background_pixels.js`
+- Files: `src/app/background_pixels.js`, `src/app/background_pixels.module.css`
 - Tiles an 8×8 texture out to 24×24 and draws it into the provided `componentId`, sharing the palette plus value `0` for #f9f9f9.
-- Exposes a `.canvas-background` container that fills its cell beneath draggable glyph canvases.
+- Uses a CSS module to anchor each background canvas under any draggable content.
 
 ## Interaction Agents
-- File: `src/app/TileDroppable.js`
+- Files: `src/app/TileDroppable.js`, `src/app/TileDroppable.module.css`
   - Wraps `useDroppable` to register each grid cell as a drop zone, toggling an outline while a tile hovers.
-- File: `src/app/TileDraggable.js`
+- Files: `src/app/TileDraggable.js`, `src/app/TileDraggable.module.css`
   - Wraps `useDraggable` to translate glyph canvases via CSS transforms and toggles grab/grabbing cursors.
 - Drag/drop utilities coexist with the legacy `Block/Draggable/Droppable` prototypes for future experimentation.
 
 ## Text Board Agent
-- File: `src/app/TextBoard.js`
+- Files: `src/app/TextBoard.js`, `src/app/TextBoard.module.css`
 - Occupies the four middle cells of the bottom row with a solid black panel encased by a thick black border and inset white trim, providing space for future text overlays.
 
 ## Styling Agent
 - File: `src/app/globals.css`
-- Configures the `.grid-container` as 6 columns × 6 rows (720px square) and centres contents.
-- Adds layered classes so `.canvas-background` pins to the cell floor, `.canvas-foreground` floats above, and `.tile-*` classes manage outlines, cursors, and stacking during interaction.
+- Holds shared base rules (Tailwind resets, fonts, body colours) and the reusable `.canvas-cell` helper applied by multiple components.
+- All component-specific styling now lives alongside its component in a CSS module to keep concerns isolated.
 
 ## Extension Hooks
 - Extend the tile map in `page.js` or adjust `pixelSize` to scale output without modifying source matrices.

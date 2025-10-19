@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from "react";
+import styles from "./pixel_art.module.css";
 
 const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => {
   const mask = [
@@ -109,7 +110,9 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
     });
   }, [useMask, tilePixels, componentId, pixelSize]);
 
-  return <div id={componentId} className="canvas-cell canvas-foreground"></div>;
+  const classes = ['canvas-cell', styles.container].join(' ');
+
+  return <div id={componentId} className={classes}></div>;
 };
 
 export default PixelArtCanvas;

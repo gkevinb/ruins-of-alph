@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from "react";
+import styles from "./background_pixels.module.css";
 
 const pixelArtCompressed = [
   "11101011",
@@ -67,7 +68,9 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
     });
   }, [componentId, pixelSize, targetSize]);
 
-  return <div id={componentId} className="canvas-cell canvas-background"></div>;
+  const classes = ['canvas-cell', styles.container].join(' ');
+
+  return <div id={componentId} className={classes}></div>;
 };
 
 export default BackgroundPixels;

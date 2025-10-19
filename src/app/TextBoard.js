@@ -1,9 +1,11 @@
 'use client'
 
+import styles from './TextBoard.module.css';
+
 const TextBoard = () => {
   return (
-    <div className="text-board">
-      <div className="text-board-inner" />
+    <div className={styles.board}>
+      <div className={styles.inner} />
     </div>
   );
 };
