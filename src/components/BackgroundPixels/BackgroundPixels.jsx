@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from "react";
-import styles from "./background_pixels.module.css";
+import styles from "./BackgroundPixels.module.css";
 
 const pixelArtCompressed = [
   "11101011",

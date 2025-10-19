@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from "react";
-import styles from "./pixel_art.module.css";
+import styles from "./PixelArtCanvas.module.css";
 
 const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => {
   const mask = [
@@ -37,9 +37,7 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
     compressedArt.forEach((row) => {
       const expandedRow = row
         .split("")
-        .map((char) => {
-          return char.repeat(scale);
-        })
+        .map((char) => char.repeat(scale))
         .join("");
 
       for (let i = 0; i < scale; i++) {
@@ -50,17 +48,16 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
     return expandedArt;
   };
 
-  const applyMask = (expandedArt, mask) => {
+  const applyMask = (expandedArt, maskData) => {
     return expandedArt.map((row, rowIndex) => {
       return row
         .split("")
         .map((char, colIndex) => {
-          const maskValue = mask[rowIndex][colIndex];
+          const maskValue = maskData[rowIndex][colIndex];
           if (maskValue === "1") {
             return "3";
-          } else {
-            return char;
           }
+          return char;
         })
         .join("");
     });

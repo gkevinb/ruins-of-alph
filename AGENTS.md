@@ -16,29 +16,29 @@
 - Styles the 6×6 layout via the page CSS module, reserving the bottom-row centre (`TextBoard`) as a non-droppable display strip.
 
 ## Pixel Art Agent
-- Files: `src/app/pixel_art.js`, `src/app/pixel_art.module.css`
+- Files: `src/components/PixelArtCanvas/PixelArtCanvas.jsx`, `src/components/PixelArtCanvas/PixelArtCanvas.module.css`
 - Expands compact 12×12 strings to 24×24 by duplicating rows/columns and optionally masks value `1` to `3` for the black void effect.
 - Replaces the contents of the target container with a canvas scaled by `pixelSize` (default 5px) and paints using the 1→#c19f57, 2→#8f6858, 3→#000000 palette.
 - Applies a component-level CSS module to ensure the foreground canvas layers correctly above droppable targets.
 
 ## Background Fabric Agent
-- Files: `src/app/background_pixels.js`, `src/app/background_pixels.module.css`
+- Files: `src/components/BackgroundPixels/BackgroundPixels.jsx`, `src/components/BackgroundPixels/BackgroundPixels.module.css`
 - Tiles an 8×8 texture out to 24×24 and draws it into the provided `componentId`, sharing the palette plus value `0` for #f9f9f9.
 - Uses a CSS module to anchor each background canvas under any draggable content.
 
 ## Interaction Agents
-- Files: `src/app/TileDroppable.js`, `src/app/TileDroppable.module.css`
+- Files: `src/components/TileDroppable/TileDroppable.jsx`, `src/components/TileDroppable/TileDroppable.module.css`
   - Wraps `useDroppable` to register each grid cell as a drop zone, toggling an outline while a tile hovers.
-- Files: `src/app/TileDraggable.js`, `src/app/TileDraggable.module.css`
+- Files: `src/components/TileDraggable/TileDraggable.jsx`, `src/components/TileDraggable/TileDraggable.module.css`
   - Wraps `useDraggable` to translate glyph canvases via CSS transforms and toggles grab/grabbing cursors.
-- Drag/drop utilities coexist with the legacy `Block/Draggable/Droppable` prototypes for future experimentation.
+- Drag/drop utilities coexist with the legacy `Block/Draggable/Droppable` prototypes in `src/components` for future experimentation.
 
 ## Text Board Agent
-- Files: `src/app/TextBoard.js`, `src/app/TextBoard.module.css`
+- Files: `src/components/TextBoard/TextBoard.jsx`, `src/components/TextBoard/TextBoard.module.css`
 - Occupies the four middle cells of the bottom row with a solid black panel encased by a thick black border and inset white trim, providing space for future text overlays.
 
 ## Styling Agent
-- File: `src/app/globals.css`
+- File: `src/styles/globals.css`
 - Holds shared base rules (Tailwind resets, fonts, body colours) and the reusable `.canvas-cell` helper applied by multiple components.
 - All component-specific styling now lives alongside its component in a CSS module to keep concerns isolated.
 

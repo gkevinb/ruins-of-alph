@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { DndContext } from '@dnd-kit/core';
-import PixelArtCanvas from './pixel_art';
-import BackgroundPixels from './background_pixels';
-import TileDroppable from './TileDroppable';
-import TileDraggable from './TileDraggable';
-import TextBoard from './TextBoard';
+import PixelArtCanvas from '../components/PixelArtCanvas';
+import BackgroundPixels from '../components/BackgroundPixels';
+import TileDroppable from '../components/TileDroppable';
+import TileDraggable from '../components/TileDraggable';
+import TextBoard from '../components/TextBoard';
 import styles from './page.module.css';
 
 const getCellId = (rowIndex, colIndex) => `cell-${rowIndex}-${colIndex}`;

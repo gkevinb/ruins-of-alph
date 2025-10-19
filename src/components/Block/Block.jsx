@@ -1,17 +1,14 @@
 'use client'
 
-import React, {useState} from 'react';
-import {DndContext} from '@dnd-kit/core';
-
-import Droppable from './Droppable';
-import Draggable from './Draggable';
+import React, { useState } from 'react';
+import { DndContext } from '@dnd-kit/core';
+import Droppable from '../Droppable';
+import Draggable from '../Draggable';
 
 const Block = () => {
   const [isDropped, setIsDropped] = useState(false);
-  const draggableMarkup = (
-    <Draggable>Drag me</Draggable>
-  );
-  
+  const draggableMarkup = <Draggable>Drag me</Draggable>;
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       {!isDropped ? draggableMarkup : null}
@@ -20,12 +17,12 @@ const Block = () => {
       </Droppable>
     </DndContext>
   );
-  
+
   function handleDragEnd(event) {
     if (event.over && event.over.id === 'droppable') {
       setIsDropped(true);
     }
   }
-}
+};
 
 export default Block;
