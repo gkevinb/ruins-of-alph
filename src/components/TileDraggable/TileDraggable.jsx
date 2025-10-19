@@ -18,11 +18,16 @@ const TileDraggable = ({ id, children, className = '', style }) => {
     .filter(Boolean)
     .join(' ');
 
+  const handleContextMenu = React.useCallback((event) => {
+    event.preventDefault();
+  }, []);
+
   return (
     <div
       ref={setNodeRef}
       className={classes}
       style={combinedStyle}
+      onContextMenu={handleContextMenu}
       {...listeners}
       {...attributes}
     >
