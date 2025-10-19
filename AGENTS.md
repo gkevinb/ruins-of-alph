@@ -13,7 +13,7 @@
 - File: `src/app/page.js`
 - Marks the module as client-side, seeds tile placement state for all 36 cells, and renders a `DndContext` around the grid.
 - Computes the occupant map (`placements`) so each droppable knows which glyph to show and performs swap logic when a tile drops onto an occupied cell.
-- Renders a background canvas in every slot and conditionally overlays a draggable glyph using tile-specific IDs for canvas mounting.
+- Renders background canvases everywhere, overlays draggable glyphs for occupied cells, and reserves the bottom-row centre (`TextBoard`) as a non-droppable display strip.
 
 ## Pixel Art Agent
 - File: `src/app/pixel_art.js`
@@ -32,6 +32,10 @@
 - File: `src/app/TileDraggable.js`
   - Wraps `useDraggable` to translate glyph canvases via CSS transforms and toggles grab/grabbing cursors.
 - Drag/drop utilities coexist with the legacy `Block/Draggable/Droppable` prototypes for future experimentation.
+
+## Text Board Agent
+- File: `src/app/TextBoard.js`
+- Occupies the four middle cells of the bottom row with a solid black panel encased by a thick black border and inset white trim, providing space for future text overlays.
 
 ## Styling Agent
 - File: `src/app/globals.css`

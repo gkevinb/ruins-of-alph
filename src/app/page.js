@@ -6,6 +6,7 @@ import PixelArtCanvas from './pixel_art';
 import BackgroundPixels from './background_pixels';
 import TileDroppable from './TileDroppable';
 import TileDraggable from './TileDraggable';
+import TextBoard from './TextBoard';
 
 const getCellId = (rowIndex, colIndex) => `cell-${rowIndex}-${colIndex}`;
 
@@ -347,6 +348,20 @@ export default function Home() {
         <div className="grid-container">
           {gridLayout.map((row, rowIndex) =>
             row.map((_, colIndex) => {
+              if (rowIndex === gridLayout.length - 1) {
+                if (colIndex === 1) {
+                  return (
+                    <div className="grid-item board-item" key="text-board">
+                      <TextBoard />
+                    </div>
+                  );
+                }
+
+                if (colIndex > 1 && colIndex < 5) {
+                  return null;
+                }
+              }
+
               const cellId = getCellId(rowIndex, colIndex);
               const occupantId = cellOccupants[cellId];
               const tilePixels = occupantId ? pixelTileMap[occupantId] : null;
