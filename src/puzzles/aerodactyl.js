@@ -231,20 +231,20 @@ const gridLayout = [
   ['BG', 'B1', 'B2', 'B3', 'B4', 'BG'],
   ['BG', 'C1', 'C2', 'C3', 'C4', 'BG'],
   ['BG', 'D1', 'D2', 'D3', 'D4', 'BG'],
-  ['BG', 'BG', 'BG', 'BG', 'BG', 'BG']
+  ['BG', 'TB', 'TB', 'TB', 'TB', 'BG']
 ];
 
-const puzzle1 = {
-  id: 'puzzle1',
-  name: 'Ruins of Alph',
+const aerodactyl = {
+  id: 'aerodactyl',
+  name: 'Aerodactyl',
   tilePixels,
   gridLayout,
   textBoard: {
     rowIndex: gridLayout.length - 1,
     startCol: 1,
     endCol: 4,
-    solvedMessage: 'congrats on finishing puzzle'
+    solvedMessage: 'Aerodactyl'
   }
 };
 
-export default puzzle1;
+export default aerodactyl;

@@ -1,6 +1,6 @@
 import Puzzle from '../components/Puzzle';
-import { puzzle1 } from '../puzzles';
+import { aerodactyl } from '../puzzles';
 
 export default function Home() {
-  return <Puzzle puzzle={puzzle1} />;
+  return <Puzzle puzzle={aerodactyl} />;
 }

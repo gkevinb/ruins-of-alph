@@ -1,1 +1,1 @@
-export { default as puzzle1 } from './puzzle1';
+export { default as aerodactyl } from './aerodactyl';

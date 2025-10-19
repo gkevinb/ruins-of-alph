@@ -52,14 +52,14 @@ const Puzzle = ({ puzzle }) => {
           outer.push(cellId);
         }
 
-        if (cell !== 'BG') {
+        if (cell !== 'BG' && tilePixels[cell]) {
           solved[cell] = cellId;
         }
       });
     });
 
     return { solvedPlacements: solved, outerCellIds: outer };
-  }, [gridLayout, textBoard, puzzleId]);
+  }, [gridLayout, textBoard, puzzleId, tilePixels]);
 
   const buildInitialPlacements = useCallback(() => {
     const tileIds = Object.keys(tilePixels);
@@ -155,7 +155,6 @@ const Puzzle = ({ puzzle }) => {
 
   return (
     <div>
-      {name ? <h1>{name}</h1> : null}
       <DndContext onDragEnd={handleDragEnd}>
         <div className={styles.root} style={rootStyle}>
           {gridLayout.map((row, rowIndex) =>
