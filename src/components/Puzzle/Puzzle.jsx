@@ -105,6 +105,14 @@ const Puzzle = ({ puzzle }) => {
     );
   }, [placements, solvedPlacements]);
 
+
+  {/* Debug purposes solve logic */}
+  const handleSolve = useCallback(() => {
+    setPlacements(() => ({ ...solvedPlacements }));
+  }, [solvedPlacements]);
+  {/* Debug purposes solve logic */}
+
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
@@ -218,6 +226,26 @@ const Puzzle = ({ puzzle }) => {
           )}
         </div>
       </DndContext>
+      {/* Debug purposes solve button */}
+      <button
+        type="button"
+        onClick={handleSolve}
+        disabled={isSolved}
+        style={{
+          marginTop: '16px',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          border: '2px solid #000',
+          backgroundColor: '#000',
+          color: '#000',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          cursor: isSolved ? 'not-allowed' : 'pointer'
+        }}
+      >
+        Solve
+      </button>
+      {/* Debug purposes solve button */}
     </div>
   );
 };
