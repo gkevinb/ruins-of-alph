@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { DndContext } from '@dnd-kit/core';
 import PixelArtCanvas from '../components/PixelArtCanvas';
 import BackgroundPixels from '../components/BackgroundPixels';
+import BlackTile from '../components/BlackTile';
 import TileDroppable from '../components/TileDroppable';
 import TileDraggable from '../components/TileDraggable';
 import TextBoard from '../components/TextBoard';
@@ -367,6 +368,11 @@ export default function Home() {
               }
 
               const cellId = getCellId(rowIndex, colIndex);
+              const isCentralCell =
+                rowIndex > 0 &&
+                rowIndex < gridLayout.length - 1 &&
+                colIndex > 0 &&
+                colIndex < row.length - 1;
               const occupantId = cellOccupants[cellId];
               const tilePixels = occupantId ? pixelTileMap[occupantId] : null;
 
@@ -374,6 +380,9 @@ export default function Home() {
                 <div className={styles.gridItem} key={cellId}>
                   <TileDroppable id={cellId}>
                     <BackgroundPixels componentId={`bg-${cellId}`} />
+                    {isCentralCell ? (
+                      <BlackTile componentId={`black-${cellId}`} />
+                    ) : null}
                     {tilePixels ? (
                       <TileDraggable id={occupantId}>
                         <PixelArtCanvas
