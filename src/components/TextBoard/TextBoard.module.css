@@ -28,4 +28,12 @@
   line-height: 1.4;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 1.6s ease-out, filter 1.6s ease-out;
+}
+
+.messageVisible {
+  opacity: 1;
+  filter: blur(0);
 }

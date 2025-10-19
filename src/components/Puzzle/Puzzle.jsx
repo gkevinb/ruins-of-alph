@@ -237,7 +237,7 @@ const Puzzle = ({ puzzle }) => {
           borderRadius: '8px',
           border: '2px solid #000',
           backgroundColor: '#000',
-          color: '#fff',
+          color: '#000',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           cursor: isSolved ? 'not-allowed' : 'pointer'
