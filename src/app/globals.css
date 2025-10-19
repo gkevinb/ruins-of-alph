@@ -21,35 +21,73 @@ body {
 }
 
 canvas {
-    /* image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-crisp-edges; */
-    image-rendering: pixelated;
-    /* image-rendering: crisp-edges; */
-    /* width: 100vh;
-    height: 100vh; */
+  image-rendering: pixelated;
 }
 
-
 .grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 columns of equal width */
-    grid-template-rows: repeat(4, 1fr);  /* 4 rows of equal height */
-    /* gap: 10px; Space between grid items */
-    width: 480px;
-    height: 480px;
-    background-color: #fff;
-    /* padding: 10px; */
-    /* border-radius: 8px; */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  width: 720px;
+  height: 720px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .grid-item {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #007bff;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 4px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+}
+
+.tile-droppable {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-droppable.is-over {
+  outline: 3px solid #8f6858;
+}
+
+.tile-draggable {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.tile-draggable.is-dragging {
+  cursor: grabbing;
+}
+
+.canvas-cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.canvas-foreground {
+  position: relative;
+  z-index: 2;
 }
