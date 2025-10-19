@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect } from "react";
-import styles from "./BackgroundPixels.module.css";
+import React, { useEffect, useRef } from 'react';
+import styles from './BackgroundPixels.module.css';
 
 const pixelArtCompressed = [
   "11101011",
@@ -27,20 +27,18 @@ const tilePixelArt = (compressedArt, targetSize) => {
 };
 
 const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
-  useEffect(() => {
-    if (!componentId) {
-      return;
-    }
+  const containerRef = useRef(null);
 
-    const tiledPixelArt = tilePixelArt(pixelArtCompressed, targetSize);
-    const canvas = document.createElement("canvas");
-    const container = document.getElementById(componentId);
+  useEffect(() => {
+    const container = containerRef.current;
 
     if (!container) {
       return;
     }
 
-    const ctx = canvas.getContext("2d");
+    const tiledPixelArt = tilePixelArt(pixelArtCompressed, targetSize);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
     canvas.width = tiledPixelArt[0].length * pixelSize;
     canvas.height = tiledPixelArt.length * pixelSize;
 
@@ -49,13 +47,13 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
     tiledPixelArt.forEach((row, rowIndex) => {
       row.split("").forEach((pixel, colIndex) => {
         if (pixel === "0") {
-          ctx.fillStyle = "#f9f9f9";
+          ctx.fillStyle = '#f9f9f9';
         }
         if (pixel === "1") {
-          ctx.fillStyle = "#c19f57";
+          ctx.fillStyle = '#c19f57';
         }
         if (pixel === "2") {
-          ctx.fillStyle = "#8f6858";
+          ctx.fillStyle = '#8f6858';
         }
 
         ctx.fillRect(
@@ -66,11 +64,11 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
         );
       });
     });
-  }, [componentId, pixelSize, targetSize]);
+  }, [pixelSize, targetSize]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
 
-  return <div id={componentId} className={classes}></div>;
+  return <div id={componentId} ref={containerRef} className={classes}></div>;
 };
 
 export default BackgroundPixels;

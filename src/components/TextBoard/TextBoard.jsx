@@ -2,10 +2,12 @@
 
 import styles from './TextBoard.module.css';
 
-const TextBoard = () => {
+const TextBoard = ({ message = '' }) => {
   return (
     <div className={styles.board}>
-      <div className={styles.inner} />
+      <div className={styles.inner}>
+        {message ? <span className={styles.message}>{message}</span> : null}
+      </div>
     </div>
   );
 };

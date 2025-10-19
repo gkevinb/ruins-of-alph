@@ -272,27 +272,74 @@ export default function Home() {
     D4: pixelTileD4
   };
 
-  const gridLayout = [
-    ['BG', 'BG', 'BG', 'BG', 'BG', 'BG'],
-    ['BG', 'A1', 'A2', 'A3', 'A4', 'BG'],
-    ['BG', 'B1', 'B2', 'B3', 'B4', 'BG'],
-    ['BG', 'C1', 'C2', 'C3', 'C4', 'BG'],
-    ['BG', 'D1', 'D2', 'D3', 'D4', 'BG'],
-    ['BG', 'BG', 'BG', 'BG', 'BG', 'BG']
-  ];
+  const gridLayout = useMemo(
+    () => [
+      ['BG', 'BG', 'BG', 'BG', 'BG', 'BG'],
+      ['BG', 'A1', 'A2', 'A3', 'A4', 'BG'],
+      ['BG', 'B1', 'B2', 'B3', 'B4', 'BG'],
+      ['BG', 'C1', 'C2', 'C3', 'C4', 'BG'],
+      ['BG', 'D1', 'D2', 'D3', 'D4', 'BG'],
+      ['BG', 'BG', 'BG', 'BG', 'BG', 'BG']
+    ],
+    []
+  );
 
-  const [placements, setPlacements] = useState(() => {
-    const map = {};
+  const { solvedPlacements, outerCellIds } = useMemo(() => {
+    const solved = {};
+    const outer = [];
 
     gridLayout.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
+        const cellId = getCellId(rowIndex, colIndex);
+        const isBoardCell =
+          rowIndex === gridLayout.length - 1 && colIndex > 0 && colIndex < row.length - 1;
+
+        const isOuterCell =
+          !isBoardCell &&
+          (rowIndex === 0 ||
+            rowIndex === gridLayout.length - 1 ||
+            colIndex === 0 ||
+            colIndex === row.length - 1);
+
+        if (isOuterCell) {
+          outer.push(cellId);
+        }
+
         if (cell !== 'BG') {
-          map[cell] = getCellId(rowIndex, colIndex);
+          solved[cell] = cellId;
         }
       });
     });
 
-    return map;
+    return { solvedPlacements: solved, outerCellIds: outer };
+  }, [gridLayout]);
+
+  const shuffleArray = (items) => {
+    const array = [...items];
+
+    for (let i = array.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+  };
+
+  const [placements, setPlacements] = useState(() => {
+    const tileIds = Object.keys(pixelTileMap);
+
+    if (outerCellIds.length >= tileIds.length) {
+      const shuffledCells = shuffleArray(outerCellIds);
+      const map = {};
+
+      tileIds.forEach((tileId, index) => {
+        map[tileId] = shuffledCells[index];
+      });
+
+      return map;
+    }
+
+    return { ...solvedPlacements };
   });
 
   const cellOccupants = useMemo(() => {
@@ -304,6 +351,12 @@ export default function Home() {
 
     return entries;
   }, [placements]);
+
+  const isSolved = useMemo(() => {
+    return Object.entries(solvedPlacements).every(
+      ([tileId, targetCellId]) => placements[tileId] === targetCellId
+    );
+  }, [placements, solvedPlacements]);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -357,7 +410,7 @@ export default function Home() {
                       className={`${styles.gridItem} ${styles.boardItem}`}
                       key="text-board"
                     >
-                      <TextBoard />
+                      <TextBoard message={isSolved ? 'congrats on finishing puzzle' : ''} />
                     </div>
                   );
                 }

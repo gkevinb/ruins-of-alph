@@ -1,15 +1,13 @@
 'use client'
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styles from './BlackTile.module.css';
 
 const BlackTile = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
-  useEffect(() => {
-    if (!componentId) {
-      return;
-    }
+  const containerRef = useRef(null);
 
-    const container = document.getElementById(componentId);
+  useEffect(() => {
+    const container = containerRef.current;
 
     if (!container) {
       return;
@@ -25,11 +23,11 @@ const BlackTile = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     container.replaceChildren(canvas);
-  }, [componentId, pixelSize, targetSize]);
+  }, [pixelSize, targetSize]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
 
-  return <div id={componentId} className={classes}></div>;
+  return <div id={componentId} ref={containerRef} className={classes}></div>;
 };
 
 export default BlackTile;

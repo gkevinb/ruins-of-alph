@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useEffect } from "react";
-import styles from "./PixelArtCanvas.module.css";
+import React, { useEffect, useRef } from 'react';
+import styles from './PixelArtCanvas.module.css';
 
 const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => {
+  const containerRef = useRef(null);
+
   const mask = [
     "111111111111111111111111",
     "111000011110000000000111",
@@ -64,7 +66,14 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
   };
 
   useEffect(() => {
-    if (!componentId) {
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    if (!tilePixels) {
+      container.replaceChildren();
       return;
     }
 
@@ -72,14 +81,8 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
     const pixelArtExpanded = expandPixelArt(tilePixels, scale);
     const finalPixelArt = useMask ? applyMask(pixelArtExpanded, mask) : pixelArtExpanded;
 
-    const canvas = document.createElement("canvas");
-    const container = document.getElementById(componentId);
-
-    if (!container) {
-      return;
-    }
-
-    const ctx = canvas.getContext("2d");
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
     canvas.width = finalPixelArt[0].length * pixelSize;
     canvas.height = finalPixelArt.length * pixelSize;
 
@@ -88,13 +91,13 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
     finalPixelArt.forEach((row, rowIndex) => {
       row.split("").forEach((pixel, colIndex) => {
         if (pixel === "1") {
-          ctx.fillStyle = "#c19f57";
+          ctx.fillStyle = '#c19f57';
         }
         if (pixel === "2") {
-          ctx.fillStyle = "#8f6858";
+          ctx.fillStyle = '#8f6858';
         }
         if (pixel === "3") {
-          ctx.fillStyle = "#000000";
+          ctx.fillStyle = '#000000';
         }
 
         ctx.fillRect(
@@ -105,11 +108,11 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
         );
       });
     });
-  }, [useMask, tilePixels, componentId, pixelSize]);
+  }, [useMask, tilePixels, pixelSize]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
 
-  return <div id={componentId} className={classes}></div>;
+  return <div id={componentId} ref={containerRef} className={classes}></div>;
 };
 
 export default PixelArtCanvas;
