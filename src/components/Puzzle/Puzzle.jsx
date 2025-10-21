@@ -256,6 +256,13 @@ const Puzzle = ({ puzzle }) => {
           )}
         </div>
       </DndContext>
+      <div
+        style={{
+          width: `${tileRenderSize}px`,
+          height: `${tileRenderSize}px`,
+          border: '4px solid red'
+        }}
+      ></div>
       {/* Debug purposes solve button */}
       <button
         type="button"
