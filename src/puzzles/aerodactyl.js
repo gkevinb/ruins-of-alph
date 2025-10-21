@@ -234,11 +234,17 @@ const gridLayout = [
   ['BG', 'TB', 'TB', 'TB', 'TB', 'BG']
 ];
 
+const renderConfig = {
+  pixelSize: 4,
+  targetSize: 24
+};
+
 const aerodactyl = {
   id: 'aerodactyl',
   name: 'Aerodactyl',
   tilePixels,
   gridLayout,
+  renderConfig,
   textBoard: {
     rowIndex: gridLayout.length - 1,
     startCol: 1,

@@ -23,8 +23,21 @@ const shuffleArray = (items) => {
   return array;
 };
 
+const DEFAULT_PIXEL_SIZE = 5;
+const DEFAULT_TARGET_SIZE = 24;
+
 const Puzzle = ({ puzzle }) => {
-  const { id: puzzleId = 'puzzle', name, tilePixels, gridLayout, textBoard } = puzzle;
+  const {
+    id: puzzleId = 'puzzle',
+    name,
+    tilePixels,
+    gridLayout,
+    textBoard,
+    renderConfig = {}
+  } = puzzle;
+
+  const pixelSize = renderConfig.pixelSize ?? DEFAULT_PIXEL_SIZE;
+  const targetSize = renderConfig.targetSize ?? DEFAULT_TARGET_SIZE;
 
   const rowCount = gridLayout.length;
   const columnCount = rowCount > 0 ? gridLayout[0].length : 0;
@@ -156,9 +169,15 @@ const Puzzle = ({ puzzle }) => {
     ? textBoard?.solvedMessage ?? ''
     : textBoard?.defaultMessage ?? '';
 
+  const columnSpan = Math.max(columnCount, 1);
+  const rowSpan = Math.max(rowCount, 1);
+  const tileRenderSize = targetSize * pixelSize;
+
   const rootStyle = {
-    gridTemplateColumns: `repeat(${Math.max(columnCount, 1)}, 1fr)`,
-    gridTemplateRows: `repeat(${Math.max(rowCount, 1)}, 1fr)`
+    width: `${columnSpan * tileRenderSize}px`,
+    height: `${rowSpan * tileRenderSize}px`,
+    gridTemplateColumns: `repeat(${columnSpan}, 1fr)`,
+    gridTemplateRows: `repeat(${rowSpan}, 1fr)`
   };
 
   return (
@@ -208,14 +227,25 @@ const Puzzle = ({ puzzle }) => {
               return (
                 <div className={styles.cell} key={cellId}>
                   <TileDroppable id={cellId}>
-                    <BackgroundPixels componentId={backgroundId} />
-                    {isCentralCell ? <BlackTile componentId={blackTileId} /> : null}
+                    <BackgroundPixels
+                      componentId={backgroundId}
+                      pixelSize={pixelSize}
+                      targetSize={targetSize}
+                    />
+                    {isCentralCell ? (
+                      <BlackTile
+                        componentId={blackTileId}
+                        pixelSize={pixelSize}
+                        targetSize={targetSize}
+                      />
+                    ) : null}
                     {tilePixelsMatrix ? (
                       <TileDraggable id={occupantId}>
                         <PixelArtCanvas
                           componentId={`${puzzleId}-tile-${occupantId}`}
                           tilePixels={tilePixelsMatrix}
                           useMask={!isSolved}
+                          pixelSize={pixelSize}
                         />
                       </TileDraggable>
                     ) : null}
