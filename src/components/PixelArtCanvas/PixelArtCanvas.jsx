@@ -31,8 +31,8 @@ const MASK_DATA = [
 ];
 
 const SCALE = 2;
-const TRANSITION_HANDLER_KEY = '__maskTransitionHandler';
 const REVEAL_RAF_KEY = '__maskRevealRafId';
+const PIXEL_REVEAL_TARGET_FRAMES = 120;
 
 const expandPixelArt = (compressedArt, scale) => {
   const expandedArt = [];
@@ -64,6 +64,33 @@ const applyMask = (expandedArt, maskData) => {
       })
       .join('');
   });
+};
+
+const createMaskPixelCoords = (maskData) => {
+  const coords = [];
+
+  maskData.forEach((row, rowIndex) => {
+    row.split('').forEach((value, colIndex) => {
+      if (value === '1') {
+        coords.push({ x: colIndex, y: rowIndex });
+      }
+    });
+  });
+
+  return coords;
+};
+
+const MASK_PIXEL_COORDS = createMaskPixelCoords(MASK_DATA);
+
+const shuffleArray = (array) => {
+  const shuffled = array.slice();
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
 };
 
 const COLOR_MAP = {
@@ -99,6 +126,57 @@ const drawPixelArt = (canvas, art, pixelSize) => {
   });
 };
 
+const cancelPixelReveal = (canvas) => {
+  if (!canvas) {
+    return;
+  }
+
+  if (canvas[REVEAL_RAF_KEY]) {
+    cancelAnimationFrame(canvas[REVEAL_RAF_KEY]);
+    canvas[REVEAL_RAF_KEY] = undefined;
+  }
+};
+
+const startPixelReveal = (canvas, pixelSize, onComplete) => {
+  if (!canvas) {
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return;
+  }
+
+  const pixels = shuffleArray(MASK_PIXEL_COORDS);
+
+  if (pixels.length === 0) {
+    onComplete?.();
+    return;
+  }
+
+  const pixelsPerFrame = Math.max(1, Math.floor(pixels.length / PIXEL_REVEAL_TARGET_FRAMES));
+
+  const revealStep = () => {
+    const batchSize = Math.min(pixelsPerFrame, pixels.length);
+
+    for (let i = 0; i < batchSize; i += 1) {
+      const { x, y } = pixels.pop();
+      ctx.clearRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+    }
+
+    if (pixels.length > 0) {
+      canvas[REVEAL_RAF_KEY] = requestAnimationFrame(revealStep);
+      return;
+    }
+
+    canvas[REVEAL_RAF_KEY] = undefined;
+    onComplete?.();
+  };
+
+  canvas[REVEAL_RAF_KEY] = requestAnimationFrame(revealStep);
+};
+
 const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => {
   const containerRef = useRef(null);
   const baseCanvasRef = useRef(null);
@@ -113,6 +191,7 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
 
     if (!tilePixels) {
       if (maskCanvasRef.current) {
+        cancelPixelReveal(maskCanvasRef.current);
         maskCanvasRef.current.remove();
         maskCanvasRef.current = null;
       }
@@ -135,82 +214,38 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
       baseCanvas.className = styles.baseCanvas;
       baseCanvasRef.current = baseCanvas;
       container.appendChild(baseCanvas);
+    } else if (!container.contains(baseCanvas)) {
+      container.appendChild(baseCanvas);
     }
 
     drawPixelArt(baseCanvas, expandedArt, pixelSize);
 
     let maskCanvas = maskCanvasRef.current;
 
+    if (!maskCanvas) {
+      maskCanvas = document.createElement('canvas');
+      maskCanvas.className = styles.maskCanvas;
+      maskCanvasRef.current = maskCanvas;
+    }
+
+    if (!maskCanvas.parentNode || maskCanvas.parentNode !== container) {
+      container.appendChild(maskCanvas);
+    }
+
     if (useMask) {
-      if (!maskCanvas) {
-        maskCanvas = document.createElement('canvas');
-        maskCanvas.className = styles.maskCanvas;
-        maskCanvasRef.current = maskCanvas;
-        container.appendChild(maskCanvas);
-      }
-
-      if (maskCanvas[TRANSITION_HANDLER_KEY]) {
-        maskCanvas.removeEventListener('transitionend', maskCanvas[TRANSITION_HANDLER_KEY]);
-        maskCanvas[TRANSITION_HANDLER_KEY] = undefined;
-      }
-
-      if (maskCanvas[REVEAL_RAF_KEY]) {
-        cancelAnimationFrame(maskCanvas[REVEAL_RAF_KEY]);
-        maskCanvas[REVEAL_RAF_KEY] = undefined;
-      }
-
-      maskCanvas.classList.remove(styles.maskHidden);
+      cancelPixelReveal(maskCanvas);
       drawPixelArt(maskCanvas, maskedArt, pixelSize);
     } else {
-      if (!maskCanvas) {
-        maskCanvas = document.createElement('canvas');
-        maskCanvas.className = styles.maskCanvas;
-        maskCanvasRef.current = maskCanvas;
-        container.appendChild(maskCanvas);
-      } else {
-        container.appendChild(maskCanvas);
-      }
-
-      if (maskCanvas[TRANSITION_HANDLER_KEY]) {
-        maskCanvas.removeEventListener('transitionend', maskCanvas[TRANSITION_HANDLER_KEY]);
-      }
-
-      if (maskCanvas[REVEAL_RAF_KEY]) {
-        cancelAnimationFrame(maskCanvas[REVEAL_RAF_KEY]);
-        maskCanvas[REVEAL_RAF_KEY] = undefined;
-      }
-
+      cancelPixelReveal(maskCanvas);
       drawPixelArt(maskCanvas, maskedArt, pixelSize);
-      maskCanvas.classList.remove(styles.maskHidden);
 
-      const handleTransitionEnd = (event) => {
-        if (event.propertyName !== 'opacity') {
-          return;
-        }
-
-        if (!maskCanvas.classList.contains(styles.maskHidden)) {
-          return;
-        }
-
-        maskCanvas.removeEventListener('transitionend', handleTransitionEnd);
+      startPixelReveal(maskCanvas, pixelSize, () => {
         maskCanvas.remove();
 
         if (maskCanvasRef.current === maskCanvas) {
           maskCanvasRef.current = null;
         }
-
-        maskCanvas[TRANSITION_HANDLER_KEY] = undefined;
-      };
-
-      maskCanvas[TRANSITION_HANDLER_KEY] = handleTransitionEnd;
-      maskCanvas.addEventListener('transitionend', handleTransitionEnd);
-
-      const rafId = requestAnimationFrame(() => {
-        maskCanvas.classList.add(styles.maskHidden);
-        maskCanvas[REVEAL_RAF_KEY] = undefined;
       });
-
-      maskCanvas[REVEAL_RAF_KEY] = rafId;
     }
   }, [tilePixels, pixelSize, useMask]);
 

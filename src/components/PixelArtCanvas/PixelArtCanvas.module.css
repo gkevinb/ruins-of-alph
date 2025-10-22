@@ -15,10 +15,4 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transition: opacity 1.6s ease-out, filter 1.6s ease-out;
-}
-
-.maskHidden {
-  opacity: 0;
-  filter: blur(8px);
 }
