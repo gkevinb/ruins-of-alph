@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DndContext } from '@dnd-kit/core';
 import BackgroundPixels from '../BackgroundPixels';
 import BlackTile from '../BlackTile';
@@ -25,6 +25,8 @@ const shuffleArray = (items) => {
 
 const DEFAULT_PIXEL_SIZE = 5;
 const DEFAULT_TARGET_SIZE = 24;
+const MOBILE_BREAKPOINT = 575;
+const SUPPLY_SLOT_COUNT = 4;
 
 const Puzzle = ({ puzzle }) => {
   const {
@@ -38,6 +40,36 @@ const Puzzle = ({ puzzle }) => {
 
   const pixelSize = renderConfig.pixelSize ?? DEFAULT_PIXEL_SIZE;
   const targetSize = renderConfig.targetSize ?? DEFAULT_TARGET_SIZE;
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`);
+
+    const handleChange = (event) => {
+      setIsMobile(event.matches);
+    };
+
+    setIsMobile(mediaQuery.matches);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, []);
 
   const rowCount = gridLayout.length;
   const columnCount = rowCount > 0 ? gridLayout[0].length : 0;
@@ -75,13 +107,13 @@ const Puzzle = ({ puzzle }) => {
   }, [gridLayout, textBoard, puzzleId, tilePixels]);
 
   const buildInitialPlacements = useCallback(() => {
-    const tileIds = Object.keys(tilePixels);
+    const tileIdsForPlacement = Object.keys(tilePixels);
 
-    if (outerCellIds.length >= tileIds.length) {
+    if (outerCellIds.length >= tileIdsForPlacement.length) {
       const shuffledCells = shuffleArray(outerCellIds);
       const map = {};
 
-      tileIds.forEach((tileId, index) => {
+      tileIdsForPlacement.forEach((tileId, index) => {
         map[tileId] = shuffledCells[index];
       });
 
@@ -91,16 +123,43 @@ const Puzzle = ({ puzzle }) => {
     return { ...solvedPlacements };
   }, [tilePixels, outerCellIds, solvedPlacements]);
 
-  const [placements, setPlacements] = useState(() => buildInitialPlacements());
-  const hasHydrated = useRef(false);
+  const tileIds = useMemo(() => Object.keys(tilePixels), [tilePixels]);
+
+  const [placements, setPlacements] = useState({});
+  const [supplyQueue, setSupplyQueue] = useState([]);
 
   useEffect(() => {
-    if (hasHydrated.current) {
-      setPlacements(buildInitialPlacements());
-    } else {
-      hasHydrated.current = true;
+    if (isMobile) {
+      setPlacements({});
+      setSupplyQueue(() => shuffleArray(tileIds));
+      return;
     }
-  }, [buildInitialPlacements]);
+
+    const initialPlacements = buildInitialPlacements();
+    setPlacements(initialPlacements);
+    setSupplyQueue([]);
+  }, [isMobile, buildInitialPlacements, tileIds]);
+
+  const supplyCellIds = useMemo(() => {
+    if (!isMobile || gridLayout.length === 0) {
+      return [];
+    }
+
+    const topRow = gridLayout[0];
+    const ids = [];
+
+    topRow.forEach((_, colIndex) => {
+      if (colIndex === 0 || colIndex === topRow.length - 1) {
+        return;
+      }
+
+      if (ids.length < SUPPLY_SLOT_COUNT) {
+        ids.push(makeCellId(puzzleId, 0, colIndex));
+      }
+    });
+
+    return ids;
+  }, [isMobile, gridLayout, puzzleId]);
 
   const cellOccupants = useMemo(() => {
     const entries = {};
@@ -109,8 +168,18 @@ const Puzzle = ({ puzzle }) => {
       entries[cellId] = tileId;
     });
 
+    if (isMobile) {
+      supplyCellIds.forEach((cellId, index) => {
+        const tileId = supplyQueue[index];
+
+        if (tileId) {
+          entries[cellId] = tileId;
+        }
+      });
+    }
+
     return entries;
-  }, [placements]);
+  }, [placements, isMobile, supplyCellIds, supplyQueue]);
 
   const isSolved = useMemo(() => {
     return Object.entries(solvedPlacements).every(
@@ -122,7 +191,11 @@ const Puzzle = ({ puzzle }) => {
   {/* Debug purposes solve logic */}
   const handleSolve = useCallback(() => {
     setPlacements(() => ({ ...solvedPlacements }));
-  }, [solvedPlacements]);
+
+    if (isMobile) {
+      setSupplyQueue([]);
+    }
+  }, [solvedPlacements, isMobile]);
   {/* Debug purposes solve logic */}
 
 
@@ -137,6 +210,76 @@ const Puzzle = ({ puzzle }) => {
     const overId = over.id;
 
     if (overId === placements[activeId]) {
+      return;
+    }
+
+    if (isMobile) {
+      const activeData = active.data?.current ?? {};
+      const sourceType = activeData.sourceType ?? (placements[activeId] ? 'board' : 'supply');
+      const supplyTargetIndex = supplyCellIds.indexOf(overId);
+      const isOverSupply = supplyTargetIndex !== -1;
+
+      const targetEntry = Object.entries(placements).find(([, cellId]) => cellId === overId);
+      const targetTile = targetEntry ? targetEntry[0] : undefined;
+      const sourceCell = placements[activeId];
+      const activeFromSupply = sourceType === 'supply' || !sourceCell;
+
+      if (isOverSupply) {
+        setPlacements((prev) => {
+          if (!prev[activeId]) {
+            return prev;
+          }
+
+          const next = { ...prev };
+          delete next[activeId];
+          return next;
+        });
+
+        setSupplyQueue((prevQueue) => {
+          const withoutActive = prevQueue.filter((id) => id !== activeId);
+
+          if (supplyTargetIndex < 0) {
+            return withoutActive;
+          }
+
+          return [
+            ...withoutActive.slice(0, supplyTargetIndex),
+            activeId,
+            ...withoutActive.slice(supplyTargetIndex)
+          ];
+        });
+
+        return;
+      }
+
+      setPlacements((prev) => {
+        const next = { ...prev };
+        const currentSourceCell = prev[activeId];
+
+        next[activeId] = overId;
+
+        if (targetTile && targetTile !== activeId) {
+          if (currentSourceCell) {
+            next[targetTile] = currentSourceCell;
+          } else {
+            delete next[targetTile];
+          }
+        }
+
+        return next;
+      });
+
+      setSupplyQueue((prevQueue) => {
+        let queue = prevQueue.filter((id) => id !== activeId);
+
+        if (targetTile && targetTile !== activeId && activeFromSupply) {
+          queue = queue.filter((id) => id !== targetTile);
+          queue = [...queue, targetTile];
+        }
+
+        return queue;
+      });
+
       return;
     }
 
@@ -169,7 +312,7 @@ const Puzzle = ({ puzzle }) => {
     ? textBoard?.solvedMessage ?? ''
     : textBoard?.defaultMessage ?? '';
 
-  const columnSpan = Math.max(columnCount, 1);
+  const columnSpan = Math.max(isMobile ? columnCount - 2 : columnCount, 1);
   const rowSpan = Math.max(rowCount, 1);
   const tileRenderSize = targetSize * pixelSize;
 
@@ -186,6 +329,10 @@ const Puzzle = ({ puzzle }) => {
         <div className={styles.root} style={rootStyle}>
           {gridLayout.map((row, rowIndex) =>
             row.map((_, colIndex) => {
+              if (isMobile && (colIndex === 0 || colIndex === row.length - 1)) {
+                return null;
+              }
+
               const cellId = makeCellId(puzzleId, rowIndex, colIndex);
 
               const isTextBoardStart =
@@ -197,6 +344,12 @@ const Puzzle = ({ puzzle }) => {
                 rowIndex === textBoard.rowIndex &&
                 colIndex > textBoard.startCol &&
                 colIndex <= textBoard.endCol;
+
+              const isSupplyCell =
+                isMobile && rowIndex === 0 && supplyCellIds.includes(cellId);
+              const supplySlotIndex = isSupplyCell
+                ? supplyCellIds.indexOf(cellId)
+                : -1;
 
               if (isWithinTextBoard) {
                 return null;
@@ -225,7 +378,10 @@ const Puzzle = ({ puzzle }) => {
               }
 
               return (
-                <div className={styles.cell} key={cellId}>
+                <div
+                  className={`${styles.cell} ${isSupplyCell ? styles.supplyCell : ''}`.trim()}
+                  key={cellId}
+                >
                   <TileDroppable id={cellId}>
                     <BackgroundPixels
                       componentId={backgroundId}
@@ -240,7 +396,23 @@ const Puzzle = ({ puzzle }) => {
                       />
                     ) : null}
                     {tilePixelsMatrix ? (
-                      <TileDraggable id={occupantId}>
+                      <TileDraggable
+                        id={occupantId}
+                        data={
+                          isMobile
+                            ? isSupplyCell
+                              ? {
+                                  sourceType: 'supply',
+                                  slotIndex: supplySlotIndex,
+                                  cellId
+                                }
+                              : {
+                                  sourceType: 'board',
+                                  cellId
+                                }
+                            : undefined
+                        }
+                      >
                         <PixelArtCanvas
                           componentId={`${puzzleId}-tile-${occupantId}`}
                           tilePixels={tilePixelsMatrix}

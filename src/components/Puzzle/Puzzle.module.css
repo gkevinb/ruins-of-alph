@@ -16,6 +16,10 @@
   background-color: transparent;
 }
 
+.supplyCell {
+  align-items: stretch;
+}
+
 .textBoardCell {
   grid-column: span 4;
 }

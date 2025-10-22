@@ -5,8 +5,11 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import styles from './TileDraggable.module.css';
 
-const TileDraggable = ({ id, children, className = '', style }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
+const TileDraggable = ({ id, children, className = '', style, data = undefined }) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id,
+    data
+  });
 
   const transformStyle = transform ? { transform: CSS.Translate.toString(transform) } : {};
   const combinedStyle = { ...transformStyle, ...style };
