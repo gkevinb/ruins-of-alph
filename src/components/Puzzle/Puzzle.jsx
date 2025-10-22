@@ -323,10 +323,12 @@ const Puzzle = ({ puzzle }) => {
     gridTemplateRows: `repeat(${rowSpan}, 1fr)`
   };
 
+  const rootClassName = [styles.root, isMobile ? styles.mobileRoot : ''].filter(Boolean).join(' ');
+
   return (
     <div>
       <DndContext onDragEnd={handleDragEnd}>
-        <div className={styles.root} style={rootStyle}>
+        <div className={rootClassName} style={rootStyle}>
           {gridLayout.map((row, rowIndex) =>
             row.map((_, colIndex) => {
               if (isMobile && (colIndex === 0 || colIndex === row.length - 1)) {
@@ -428,13 +430,6 @@ const Puzzle = ({ puzzle }) => {
           )}
         </div>
       </DndContext>
-      <div
-        style={{
-          width: `${tileRenderSize}px`,
-          height: `${tileRenderSize}px`,
-          border: '4px solid red'
-        }}
-      ></div>
       {/* Debug purposes solve button */}
       <button
         type="button"
