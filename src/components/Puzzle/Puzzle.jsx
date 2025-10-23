@@ -323,112 +323,115 @@ const Puzzle = ({ puzzle }) => {
     gridTemplateRows: `repeat(${rowSpan}, 1fr)`
   };
 
-  const rootClassName = [styles.root, isMobile ? styles.mobileRoot : ''].filter(Boolean).join(' ');
+  const rootClassName = [styles.root, isMobile ? styles.mobileRootInner : '']
+    .filter(Boolean)
+    .join(' ');
+
+  const gridContent = (
+    <div className={rootClassName} style={rootStyle}>
+      {gridLayout.map((row, rowIndex) =>
+        row.map((_, colIndex) => {
+          if (isMobile && (colIndex === 0 || colIndex === row.length - 1)) {
+            return null;
+          }
+
+          const cellId = makeCellId(puzzleId, rowIndex, colIndex);
+
+          const isTextBoardStart =
+            !!textBoard &&
+            rowIndex === textBoard.rowIndex &&
+            colIndex === textBoard.startCol;
+          const isWithinTextBoard =
+            !!textBoard &&
+            rowIndex === textBoard.rowIndex &&
+            colIndex > textBoard.startCol &&
+            colIndex <= textBoard.endCol;
+
+          const isSupplyCell = isMobile && rowIndex === 0 && supplyCellIds.includes(cellId);
+          const supplySlotIndex = isSupplyCell ? supplyCellIds.indexOf(cellId) : -1;
+
+          if (isWithinTextBoard) {
+            return null;
+          }
+
+          const isCentralCell =
+            rowIndex > 0 &&
+            rowIndex < gridLayout.length - 1 &&
+            colIndex > 0 &&
+            colIndex < row.length - 1;
+          const occupantId = cellOccupants[cellId];
+          const tilePixelsMatrix = occupantId ? tilePixels[occupantId] : null;
+          const backgroundId = `${puzzleId}-bg-${cellId}`;
+          const blackTileId = `${puzzleId}-black-${cellId}`;
+
+          if (isTextBoardStart) {
+            return (
+              <div
+                className={`${styles.cell} ${styles.textBoardCell}`}
+                key={cellId}
+                style={textBoardSpan ? { gridColumn: `span ${textBoardSpan}` } : undefined}
+              >
+                <TextBoard message={boardMessage} />
+              </div>
+            );
+          }
+
+          return (
+            <div
+              className={`${styles.cell} ${isSupplyCell ? styles.supplyCell : ''}`.trim()}
+              key={cellId}
+            >
+              <TileDroppable id={cellId}>
+                <BackgroundPixels
+                  componentId={backgroundId}
+                  pixelSize={pixelSize}
+                  targetSize={targetSize}
+                />
+                {isCentralCell ? (
+                  <BlackTile
+                    componentId={blackTileId}
+                    pixelSize={pixelSize}
+                    targetSize={targetSize}
+                  />
+                ) : null}
+                {tilePixelsMatrix ? (
+                  <TileDraggable
+                    id={occupantId}
+                    data={
+                      isMobile
+                        ? isSupplyCell
+                          ? {
+                              sourceType: 'supply',
+                              slotIndex: supplySlotIndex,
+                              cellId
+                            }
+                          : {
+                              sourceType: 'board',
+                              cellId
+                            }
+                        : undefined
+                    }
+                  >
+                    <PixelArtCanvas
+                      componentId={`${puzzleId}-tile-${occupantId}`}
+                      tilePixels={tilePixelsMatrix}
+                      useMask={!isSolved}
+                      pixelSize={pixelSize}
+                    />
+                  </TileDraggable>
+                ) : null}
+              </TileDroppable>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
 
   return (
     <div>
       <DndContext onDragEnd={handleDragEnd}>
-        <div className={rootClassName} style={rootStyle}>
-          {gridLayout.map((row, rowIndex) =>
-            row.map((_, colIndex) => {
-              if (isMobile && (colIndex === 0 || colIndex === row.length - 1)) {
-                return null;
-              }
-
-              const cellId = makeCellId(puzzleId, rowIndex, colIndex);
-
-              const isTextBoardStart =
-                !!textBoard &&
-                rowIndex === textBoard.rowIndex &&
-                colIndex === textBoard.startCol;
-              const isWithinTextBoard =
-                !!textBoard &&
-                rowIndex === textBoard.rowIndex &&
-                colIndex > textBoard.startCol &&
-                colIndex <= textBoard.endCol;
-
-              const isSupplyCell =
-                isMobile && rowIndex === 0 && supplyCellIds.includes(cellId);
-              const supplySlotIndex = isSupplyCell
-                ? supplyCellIds.indexOf(cellId)
-                : -1;
-
-              if (isWithinTextBoard) {
-                return null;
-              }
-
-              const isCentralCell =
-                rowIndex > 0 &&
-                rowIndex < gridLayout.length - 1 &&
-                colIndex > 0 &&
-                colIndex < row.length - 1;
-              const occupantId = cellOccupants[cellId];
-              const tilePixelsMatrix = occupantId ? tilePixels[occupantId] : null;
-              const backgroundId = `${puzzleId}-bg-${cellId}`;
-              const blackTileId = `${puzzleId}-black-${cellId}`;
-
-              if (isTextBoardStart) {
-                return (
-                  <div
-                    className={`${styles.cell} ${styles.textBoardCell}`}
-                    key={cellId}
-                    style={textBoardSpan ? { gridColumn: `span ${textBoardSpan}` } : undefined}
-                  >
-                    <TextBoard message={boardMessage} />
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  className={`${styles.cell} ${isSupplyCell ? styles.supplyCell : ''}`.trim()}
-                  key={cellId}
-                >
-                  <TileDroppable id={cellId}>
-                    <BackgroundPixels
-                      componentId={backgroundId}
-                      pixelSize={pixelSize}
-                      targetSize={targetSize}
-                    />
-                    {isCentralCell ? (
-                      <BlackTile
-                        componentId={blackTileId}
-                        pixelSize={pixelSize}
-                        targetSize={targetSize}
-                      />
-                    ) : null}
-                    {tilePixelsMatrix ? (
-                      <TileDraggable
-                        id={occupantId}
-                        data={
-                          isMobile
-                            ? isSupplyCell
-                              ? {
-                                  sourceType: 'supply',
-                                  slotIndex: supplySlotIndex,
-                                  cellId
-                                }
-                              : {
-                                  sourceType: 'board',
-                                  cellId
-                                }
-                            : undefined
-                        }
-                      >
-                        <PixelArtCanvas
-                          componentId={`${puzzleId}-tile-${occupantId}`}
-                          tilePixels={tilePixelsMatrix}
-                          useMask={!isSolved}
-                          pixelSize={pixelSize}
-                        />
-                      </TileDraggable>
-                    ) : null}
-                  </TileDroppable>
-                </div>
-              );
-            })
-          )}
-        </div>
+        {isMobile ? <div className={styles.mobileRoot}>{gridContent}</div> : gridContent}
       </DndContext>
       {/* Debug purposes solve button */}
       <button
