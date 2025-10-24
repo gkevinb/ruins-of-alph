@@ -1,6 +1,7 @@
 .container {
   position: absolute;
   inset: 0;
+  display: block;
   z-index: 0;
   pointer-events: none;
 }

@@ -36,34 +36,98 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
       return;
     }
 
+    const palette = {
+      '0': '#f9f9f9',
+      '1': '#c19f57',
+      '2': '#8f6858',
+      '3': '#000000'
+    };
+
     const tiledPixelArt = tilePixelArt(pixelArtCompressed, targetSize);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = tiledPixelArt[0].length * pixelSize;
-    canvas.height = tiledPixelArt.length * pixelSize;
+    const tilePixelWidth = tiledPixelArt[0].length;
+    const tilePixelHeight = tiledPixelArt.length;
+    const tileWidth = tilePixelWidth * pixelSize;
+    const tileHeight = tilePixelHeight * pixelSize;
 
-    container.replaceChildren(canvas);
+    const render = () => {
+      const { clientWidth, clientHeight } = container;
 
-    tiledPixelArt.forEach((row, rowIndex) => {
-      row.split("").forEach((pixel, colIndex) => {
-        if (pixel === "0") {
-          ctx.fillStyle = '#f9f9f9';
-        }
-        if (pixel === "1") {
-          ctx.fillStyle = '#c19f57';
-        }
-        if (pixel === "2") {
-          ctx.fillStyle = '#8f6858';
-        }
+      if (clientWidth === 0 || clientHeight === 0) {
+        return;
+      }
 
-        ctx.fillRect(
-          colIndex * pixelSize,
-          rowIndex * pixelSize,
-          pixelSize,
-          pixelSize
-        );
-      });
-    });
+      const width = Math.max(tileWidth, Math.ceil(clientWidth / tileWidth) * tileWidth);
+      const height = Math.max(tileHeight, Math.ceil(clientHeight / tileHeight) * tileHeight);
+
+      let canvas = container.firstElementChild;
+
+      if (!(canvas instanceof HTMLCanvasElement)) {
+        canvas = document.createElement('canvas');
+        container.replaceChildren(canvas);
+      }
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        return;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      const rows = Math.floor(height / pixelSize);
+      const cols = Math.floor(width / pixelSize);
+
+      let lastFill;
+
+      for (let row = 0; row < rows; row += 1) {
+        const patternRow = tiledPixelArt[row % tilePixelHeight];
+
+        for (let col = 0; col < cols; col += 1) {
+          const pixel = patternRow[col % tilePixelWidth];
+          const fill = palette[pixel];
+
+          if (!fill) {
+            continue;
+          }
+
+          if (fill !== lastFill) {
+            ctx.fillStyle = fill;
+            lastFill = fill;
+          }
+
+          ctx.fillRect(
+            col * pixelSize,
+            row * pixelSize,
+            pixelSize,
+            pixelSize
+          );
+        }
+      }
+    };
+
+    render();
+
+    let resizeObserver;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(render);
+      resizeObserver.observe(container);
+    } else if (typeof window !== 'undefined') {
+      window.addEventListener('resize', render);
+    }
+
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', render);
+      }
+    };
   }, [pixelSize, targetSize]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
