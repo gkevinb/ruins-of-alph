@@ -25,6 +25,24 @@ const TileDraggable = ({ id, children, className = '', style, data = undefined }
     event.preventDefault();
   }, []);
 
+  React.useEffect(() => {
+    if (!isDragging) {
+      return undefined;
+    }
+
+    const { body, documentElement } = document;
+    const previousBodyCursor = body.style.cursor;
+    const previousRootCursor = documentElement.style.cursor;
+
+    body.style.cursor = 'grabbing';
+    documentElement.style.cursor = 'grabbing';
+
+    return () => {
+      body.style.cursor = previousBodyCursor;
+      documentElement.style.cursor = previousRootCursor;
+    };
+  }, [isDragging]);
+
   return (
     <div
       ref={setNodeRef}
