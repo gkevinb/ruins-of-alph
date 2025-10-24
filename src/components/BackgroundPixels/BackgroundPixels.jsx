@@ -26,7 +26,12 @@ const tilePixelArt = (compressedArt, targetSize) => {
   return tiledArt;
 };
 
-const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
+const BackgroundPixels = ({
+  componentId,
+  pixelSize = 5,
+  targetSize = 24,
+  horizontalDirection = 'ltr'
+}) => {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -56,8 +61,8 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
         return;
       }
 
-      const width = Math.max(tileWidth, Math.ceil(clientWidth / tileWidth) * tileWidth);
-      const height = Math.max(tileHeight, Math.ceil(clientHeight / tileHeight) * tileHeight);
+      const width = Math.max(tileWidth, Math.ceil(clientWidth / pixelSize) * pixelSize);
+      const height = Math.max(tileHeight, Math.ceil(clientHeight / pixelSize) * pixelSize);
 
       let canvas = container.firstElementChild;
 
@@ -88,7 +93,12 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
         const patternRow = tiledPixelArt[row % tilePixelHeight];
 
         for (let col = 0; col < cols; col += 1) {
-          const pixel = patternRow[col % tilePixelWidth];
+          const patternIndex = col % tilePixelWidth;
+          const patternCol =
+            horizontalDirection === 'rtl'
+              ? tilePixelWidth - 1 - patternIndex
+              : patternIndex;
+          const pixel = patternRow[patternCol];
           const fill = palette[pixel];
 
           if (!fill) {
@@ -100,8 +110,13 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
             lastFill = fill;
           }
 
+          const drawX =
+            horizontalDirection === 'rtl'
+              ? (cols - 1 - col) * pixelSize
+              : col * pixelSize;
+
           ctx.fillRect(
-            col * pixelSize,
+            drawX,
             row * pixelSize,
             pixelSize,
             pixelSize
@@ -128,7 +143,7 @@ const BackgroundPixels = ({ componentId, pixelSize = 5, targetSize = 24 }) => {
         window.removeEventListener('resize', render);
       }
     };
-  }, [pixelSize, targetSize]);
+  }, [horizontalDirection, pixelSize, targetSize]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
 

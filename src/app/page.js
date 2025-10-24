@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 export default function Home() {
   return (
     <div className={styles.page}>
-      <Column />
+      <Column horizontalDirection="rtl" />
       <Puzzle puzzle={aerodactyl} />
       <Column />
     </div>
