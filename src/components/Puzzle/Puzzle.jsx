@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
 import BackgroundPixels from '../BackgroundPixels';
 import BlackTile from '../BlackTile';
 import PixelArtCanvas from '../PixelArtCanvas';
@@ -127,6 +127,7 @@ const Puzzle = ({ puzzle }) => {
 
   const [placements, setPlacements] = useState({});
   const [supplyQueue, setSupplyQueue] = useState([]);
+  const [activeTileId, setActiveTileId] = useState(null);
 
   useEffect(() => {
     if (isMobile) {
@@ -199,7 +200,23 @@ const Puzzle = ({ puzzle }) => {
   {/* Debug purposes solve logic */}
 
 
+  const handleDragStart = (event) => {
+    const { active } = event;
+
+    if (!active) {
+      return;
+    }
+
+    setActiveTileId(active.id);
+  };
+
+  const handleDragCancel = () => {
+    setActiveTileId(null);
+  };
+
   const handleDragEnd = (event) => {
+    setActiveTileId(null);
+
     const { active, over } = event;
 
     if (!over) {
@@ -430,8 +447,27 @@ const Puzzle = ({ puzzle }) => {
 
   return (
     <div>
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
         {isMobile ? <div className={styles.mobileRoot}>{gridContent}</div> : gridContent}
+        <DragOverlay dropAnimation={null}>
+          {activeTileId ? (
+            <div
+              className={styles.overlayTile}
+              style={{ width: tileRenderSize, height: tileRenderSize }}
+            >
+              <PixelArtCanvas
+                componentId={`${puzzleId}-overlay-${activeTileId}`}
+                tilePixels={tilePixels[activeTileId]}
+                useMask={!isSolved}
+                pixelSize={pixelSize}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
       {/* Debug purposes solve button */}
       <button

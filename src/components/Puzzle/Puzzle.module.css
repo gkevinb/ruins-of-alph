@@ -35,3 +35,11 @@
 .textBoardCell {
   grid-column: span 4;
 }
+
+.overlayTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 999;
+}
