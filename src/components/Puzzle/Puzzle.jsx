@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import BackgroundPixels from '../BackgroundPixels';
 import BlackTile from '../BlackTile';
@@ -187,6 +187,15 @@ const Puzzle = ({ puzzle }) => {
       ([tileId, targetCellId]) => placements[tileId] === targetCellId
     );
   }, [placements, solvedPlacements]);
+
+  const prevIsSolvedRef = useRef(isSolved);
+  const justSolved = !prevIsSolvedRef.current && isSolved;
+
+  useEffect(() => {
+    prevIsSolvedRef.current = isSolved;
+  }, [isSolved]);
+
+  const tileMaskMode = isSolved ? (justSolved ? 'animate' : 'revealed') : 'masked';
 
 
   {/* Debug purposes solve logic */}
@@ -432,7 +441,7 @@ const Puzzle = ({ puzzle }) => {
                     <PixelArtCanvas
                       componentId={`${puzzleId}-tile-${occupantId}`}
                       tilePixels={tilePixelsMatrix}
-                      useMask={!isSolved}
+                      maskMode={tileMaskMode}
                       pixelSize={pixelSize}
                     />
                   </TileDraggable>
@@ -462,7 +471,7 @@ const Puzzle = ({ puzzle }) => {
               <PixelArtCanvas
                 componentId={`${puzzleId}-overlay-${activeTileId}`}
                 tilePixels={tilePixels[activeTileId]}
-                useMask={!isSolved}
+                maskMode={isSolved ? 'revealed' : 'masked'}
                 pixelSize={pixelSize}
               />
             </div>

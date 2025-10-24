@@ -177,7 +177,7 @@ const startPixelReveal = (canvas, pixelSize, onComplete) => {
   canvas[REVEAL_RAF_KEY] = requestAnimationFrame(revealStep);
 };
 
-const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => {
+const PixelArtCanvas = ({ maskMode = 'masked', tilePixels, componentId, pixelSize = 5 }) => {
   const containerRef = useRef(null);
   const baseCanvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
@@ -220,22 +220,31 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
 
     drawPixelArt(baseCanvas, expandedArt, pixelSize);
 
-    let maskCanvas = maskCanvasRef.current;
+    const ensureMaskCanvas = () => {
+      let canvas = maskCanvasRef.current;
 
-    if (!maskCanvas) {
-      maskCanvas = document.createElement('canvas');
-      maskCanvas.className = styles.maskCanvas;
-      maskCanvasRef.current = maskCanvas;
-    }
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.className = styles.maskCanvas;
+        maskCanvasRef.current = canvas;
+      }
 
-    if (!maskCanvas.parentNode || maskCanvas.parentNode !== container) {
-      container.appendChild(maskCanvas);
-    }
+      if (canvas.parentNode !== container) {
+        container.appendChild(canvas);
+      }
 
-    if (useMask) {
+      return canvas;
+    };
+
+    if (maskMode === 'masked') {
+      const maskCanvas = ensureMaskCanvas();
       cancelPixelReveal(maskCanvas);
       drawPixelArt(maskCanvas, maskedArt, pixelSize);
-    } else {
+      return;
+    }
+
+    if (maskMode === 'animate') {
+      const maskCanvas = ensureMaskCanvas();
       cancelPixelReveal(maskCanvas);
       drawPixelArt(maskCanvas, maskedArt, pixelSize);
 
@@ -246,8 +255,21 @@ const PixelArtCanvas = ({ useMask, tilePixels, componentId, pixelSize = 5 }) => 
           maskCanvasRef.current = null;
         }
       });
+
+      return;
     }
-  }, [tilePixels, pixelSize, useMask]);
+
+    const maskCanvas = maskCanvasRef.current;
+
+    if (maskCanvas) {
+      cancelPixelReveal(maskCanvas);
+      maskCanvas.remove();
+
+      if (maskCanvasRef.current === maskCanvas) {
+        maskCanvasRef.current = null;
+      }
+    }
+  }, [tilePixels, pixelSize, maskMode]);
 
   const classes = ['canvas-cell', styles.container].join(' ');
 
