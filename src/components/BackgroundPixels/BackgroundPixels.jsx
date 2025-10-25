@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import styles from './BackgroundPixels.module.css';
 
 const pixelArtCompressed = [
@@ -34,7 +34,9 @@ const BackgroundPixels = ({
 }) => {
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+  useIsomorphicLayoutEffect(() => {
     const container = containerRef.current;
 
     if (!container) {
