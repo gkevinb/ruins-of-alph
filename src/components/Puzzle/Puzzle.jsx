@@ -28,7 +28,7 @@ const DEFAULT_TARGET_SIZE = 24;
 const MOBILE_BREAKPOINT = 575;
 const SUPPLY_SLOT_COUNT = 4;
 
-const Puzzle = ({ puzzle }) => {
+const Puzzle = ({ puzzle, onSolveReady }) => {
   const {
     id: puzzleId = 'puzzle',
     name,
@@ -207,6 +207,19 @@ const Puzzle = ({ puzzle }) => {
     }
   }, [solvedPlacements, isMobile]);
   {/* Debug purposes solve logic */}
+
+
+  useEffect(() => {
+    if (!onSolveReady) {
+      return undefined;
+    }
+
+    onSolveReady(handleSolve);
+
+    return () => {
+      onSolveReady(null);
+    };
+  }, [handleSolve, onSolveReady]);
 
 
   const handleDragStart = (event) => {
@@ -478,26 +491,6 @@ const Puzzle = ({ puzzle }) => {
           ) : null}
         </DragOverlay>
       </DndContext>
-      {/* Debug purposes solve button */}
-      <button
-        type="button"
-        onClick={handleSolve}
-        disabled={isSolved}
-        style={{
-          marginTop: '16px',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          border: '2px solid #000',
-          backgroundColor: '#000',
-          color: '#000',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          cursor: isSolved ? 'not-allowed' : 'pointer'
-        }}
-      >
-        Solve
-      </button>
-      {/* Debug purposes solve button */}
     </div>
   );
 };

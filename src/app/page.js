@@ -1,3 +1,6 @@
+'use client';
+
+import { useCallback, useRef } from "react";
 import Background from "../components/Background";
 import Puzzle from "../components/Puzzle";
 import { aerodactyl } from "../puzzles";
@@ -7,6 +10,22 @@ export default function Home() {
   const topPixelSize = 4;
   const topTargetSize = 8;
   const topHeight = topPixelSize * topTargetSize;
+  const solveHandlerRef = useRef(null);
+
+  const handleSolveReady = useCallback((solveFn) => {
+    solveHandlerRef.current = solveFn;
+  }, []);
+
+  const handleSecretSolve = useCallback(() => {
+    solveHandlerRef.current?.();
+  }, []);
+
+  const handleSecretKeyDown = useCallback((event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      solveHandlerRef.current?.();
+    }
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -23,7 +42,17 @@ export default function Home() {
           style={{ height: `${topHeight}px` }}
           componentId="top-background"
         />
-        <Puzzle puzzle={aerodactyl} />
+        <Puzzle puzzle={aerodactyl} onSolveReady={handleSolveReady} />
+        <Background
+          className={styles.bottomBackground}
+          role="button"
+          tabIndex={0}
+          aria-label="Reveal the ruins"
+          title="Reveal the ruins"
+          onClick={handleSecretSolve}
+          onKeyDown={handleSecretKeyDown}
+          componentId="bottom-background"
+        />
       </div>
       <Background
         className={styles.sideBackground}
