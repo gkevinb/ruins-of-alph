@@ -126,20 +126,29 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
   const tileIds = useMemo(() => Object.keys(tilePixels), [tilePixels]);
 
   const [placements, setPlacements] = useState({});
-  const [supplyQueue, setSupplyQueue] = useState([]);
+  const [mobileSupply, setMobileSupply] = useState({ slots: [], queue: [] });
   const [activeTileId, setActiveTileId] = useState(null);
 
   useEffect(() => {
     if (isMobile) {
       setPlacements({});
-      setSupplyQueue(() => shuffleArray(tileIds));
+
+      const shuffled = shuffleArray(tileIds);
+      const topRowLength = gridLayout[0]?.length ?? 0;
+      const slotCount = Math.min(Math.max(topRowLength - 2, 0), SUPPLY_SLOT_COUNT);
+
+      setMobileSupply({
+        slots: shuffled.slice(0, slotCount),
+        queue: shuffled.slice(slotCount)
+      });
+
       return;
     }
 
     const initialPlacements = buildInitialPlacements();
     setPlacements(initialPlacements);
-    setSupplyQueue([]);
-  }, [isMobile, buildInitialPlacements, tileIds]);
+    setMobileSupply({ slots: [], queue: [] });
+  }, [isMobile, buildInitialPlacements, tileIds, gridLayout]);
 
   const supplyCellIds = useMemo(() => {
     if (!isMobile || gridLayout.length === 0) {
@@ -162,6 +171,8 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
     return ids;
   }, [isMobile, gridLayout, puzzleId]);
 
+  const supplySlots = mobileSupply.slots;
+
   const cellOccupants = useMemo(() => {
     const entries = {};
 
@@ -171,7 +182,7 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
 
     if (isMobile) {
       supplyCellIds.forEach((cellId, index) => {
-        const tileId = supplyQueue[index];
+        const tileId = supplySlots[index];
 
         if (tileId) {
           entries[cellId] = tileId;
@@ -180,7 +191,7 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
     }
 
     return entries;
-  }, [placements, isMobile, supplyCellIds, supplyQueue]);
+  }, [placements, isMobile, supplyCellIds, supplySlots]);
 
   const isSolved = useMemo(() => {
     return Object.entries(solvedPlacements).every(
@@ -203,7 +214,7 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
     setPlacements(() => ({ ...solvedPlacements }));
 
     if (isMobile) {
-      setSupplyQueue([]);
+      setMobileSupply({ slots: [], queue: [] });
     }
   }, [solvedPlacements, isMobile]);
   {/* Debug purposes solve logic */}
@@ -255,8 +266,13 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
     if (isMobile) {
       const activeData = active.data?.current ?? {};
       const sourceType = activeData.sourceType ?? (placements[activeId] ? 'board' : 'supply');
+      const sourceSlotIndex =
+        sourceType === 'supply' && typeof activeData.slotIndex === 'number'
+          ? activeData.slotIndex
+          : -1;
       const supplyTargetIndex = supplyCellIds.indexOf(overId);
       const isOverSupply = supplyTargetIndex !== -1;
+      const slotLimit = supplyCellIds.length;
 
       const targetEntry = Object.entries(placements).find(([, cellId]) => cellId === overId);
       const targetTile = targetEntry ? targetEntry[0] : undefined;
@@ -274,18 +290,36 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
           return next;
         });
 
-        setSupplyQueue((prevQueue) => {
-          const withoutActive = prevQueue.filter((id) => id !== activeId);
+        setMobileSupply((prev) => {
+          const slots = [...prev.slots];
 
-          if (supplyTargetIndex < 0) {
-            return withoutActive;
+          while (slots.length < slotLimit) {
+            slots.push(undefined);
           }
 
-          return [
-            ...withoutActive.slice(0, supplyTargetIndex),
-            activeId,
-            ...withoutActive.slice(supplyTargetIndex)
-          ];
+          let queue = prev.queue.filter((id) => id !== activeId);
+
+          if (sourceSlotIndex !== -1 && sourceSlotIndex < slots.length && sourceSlotIndex !== supplyTargetIndex) {
+            slots[sourceSlotIndex] = undefined;
+
+            if (queue.length > 0) {
+              slots[sourceSlotIndex] = queue[0];
+              queue = queue.slice(1);
+            }
+          }
+
+          const displaced = slots[supplyTargetIndex];
+
+          slots[supplyTargetIndex] = activeId;
+
+          if (displaced && displaced !== activeId) {
+            queue = [...queue, displaced];
+          }
+
+          return {
+            slots: slots.slice(0, slotLimit),
+            queue
+          };
         });
 
         return;
@@ -308,16 +342,35 @@ const Puzzle = ({ puzzle, onSolveReady }) => {
         return next;
       });
 
-      setSupplyQueue((prevQueue) => {
-        let queue = prevQueue.filter((id) => id !== activeId);
+      if (activeFromSupply && sourceSlotIndex !== -1) {
+        setMobileSupply((prev) => {
+          const slots = [...prev.slots];
 
-        if (targetTile && targetTile !== activeId && activeFromSupply) {
-          queue = queue.filter((id) => id !== targetTile);
-          queue = [...queue, targetTile];
-        }
+          while (slots.length < slotLimit) {
+            slots.push(undefined);
+          }
 
-        return queue;
-      });
+          let queue = prev.queue.filter((id) => id !== activeId);
+
+          const shouldReturnTargetToSlot = targetTile && targetTile !== activeId;
+
+          if (shouldReturnTargetToSlot) {
+            slots[sourceSlotIndex] = targetTile;
+          } else {
+            slots[sourceSlotIndex] = undefined;
+
+            if (queue.length > 0) {
+              slots[sourceSlotIndex] = queue[0];
+              queue = queue.slice(1);
+            }
+          }
+
+          return {
+            slots: slots.slice(0, slotLimit),
+            queue
+          };
+        });
+      }
 
       return;
     }
